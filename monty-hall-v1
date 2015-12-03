@@ -1,0 +1,149 @@
+from Myro import *
+from Graphics import *
+import random
+
+
+class doorEnsemble:
+    def __init__(self):
+        self.door = Rectangle((50,200),(200,450))
+        self.doorknob= Circle((175,325),15)
+        self.status = "Not Chosen"
+        self.door.draw(win)
+        self.doorknob.draw(win)
+        self.name = "default"        
+    def resizeDoor(self,topRightX,topRightY,bottomLeftX,bottomLeftY):
+        win.canvas.shapes.Remove(self.door)
+        self.door = Rectangle((topRightX,topRightY),(bottomLeftX,bottomLeftY))
+        self.door.draw(win)
+    def resizeDoorknob(self,centerX,centerY,radius):
+        win.canvas.shapes.Remove(self.doorknob)
+        self.doorknob = Circle((centerX,centerY),radius)
+        self.doorknob.draw(win)
+    def removeDoorEnsemble(self):
+        win.canvas.shapes.Remove(self.door)
+        win.canvas.shapes.Remove(self.doorknob)
+
+carIsInDoor = random.randint(1, 3)
+if carIsInDoor == 1:
+    carIsBehind = "Left"
+elif carIsInDoor == 2:
+    carIsBehind = "Center"
+elif carIsInDoor == 3:
+    carIsBehind = "Right"
+else:
+    print("ERROR")
+
+win = Window("Room for Jeff", 900,900)
+floor = Rectangle((0,450),(900,900))
+floor.fill=Color("burlywood")
+floor.draw(win)
+win.setBackground(Color("Blue"))
+
+switchBox = Rectangle((100, 25),(415, 150))
+switchBox.fill=Color("Red")
+
+stayBox = Rectangle((435,25),(750,150))
+stayBox.fill=Color("Red")
+
+leftDoorE = doorEnsemble()
+leftDoorE.door.fill=Color("Saddlebrown")
+leftDoorE.doorknob.fill=Color("gold")
+leftDoorE.name = "Left"
+
+centerDoorE = doorEnsemble()
+centerDoorE.resizeDoor(350,200,500,450)
+centerDoorE.resizeDoorknob(475,325,15)
+centerDoorE.door.fill=Color("saddlebrown")
+centerDoorE.doorknob.fill=Color("gold")
+centerDoorE.name = "Center"
+
+rightDoorE = doorEnsemble()
+rightDoorE.resizeDoor(650,200,800,450)
+rightDoorE.resizeDoorknob(775,325,15)
+rightDoorE.door.fill=Color("saddlebrown")
+rightDoorE.doorknob.fill=Color("gold")
+rightDoorE.name = "Right"
+"""
+def rightDoorGotClicked(o,e):
+        print("got here")
+        p=rightDoorE.door.center
+        cX=p[0]
+        cY=p[1]
+        print(cX,cY)
+        for s in rightDoorE.door.shapes:
+            if s.hit(e.x-cX,e.y-cY):                
+               # pass
+                print(s.tag)    
+rightDoorE.door.connect("click",rightDoorGotClicked)
+"""
+listOfDoorEnsembles = []
+listOfDoorEnsembles.append(leftDoorE)
+listOfDoorEnsembles.append(centerDoorE)
+listOfDoorEnsembles.append(rightDoorE)
+
+point = Point(0,0)
+switchMessage = Text(point, "Switch")
+switchMessage.fill=Color("Black")
+switchMessage.fontSize= 50
+
+point2 = Point(0,0)
+stayMessage = Text(point, "Stay")
+stayMessage.fill=Color("Black")
+stayMessage.fontSize= 50
+
+finalChoice = []
+switchDoor = []
+
+def handleMouseDown(obj, event): 
+    doorEnsemblesWeCanRemove = [] 
+    choiceHasBeenMade = "false"
+    for puerta in listOfDoorEnsembles:
+        if puerta.door.hit(event.x,event.y) and puerta.status=="Not Chosen":
+            print("Choosing Door")
+            puerta.status="Chosen"
+            puerta.door.outline=Color("purple")            
+            puerta.door.setWidth(8)
+            for DoorD in listOfDoorEnsembles:
+                if (DoorD is not puerta) and (DoorD.name is not carIsBehind):
+                    doorEnsemblesWeCanRemove.append(DoorD)
+            doorToRemove = random.choice(doorEnsemblesWeCanRemove)
+            doorToRemove.removeDoorEnsemble()
+            stayBox.draw(win)
+            switchBox.draw(win)
+            switchMessage.setX(247.5)
+            switchMessage.setY(82.5)
+            switchMessage.draw(win)
+            stayMessage.setX(597.5)
+            stayMessage.setY(82.5)
+            stayMessage.draw(win)
+        if switchBox.hit(event.x,event.y):
+            print("Switch")
+            puerta.door.outline = Color("Purple")
+            puerta.door.setWidth(8)
+            listOfDoorEnsembles.remove(puerta)
+            for switchD in listOfDoorEnsembles:
+                switchD.door.outline = Color("Black")
+                switchD.door.setWidth(1)
+                choiceHasBeenMade = "true"
+                puerta.name = finalChoice
+        if stayBox.hit(event.x,event.y):
+            print("Stay")
+            choiceHasBeenMade = "true"
+            puerta.name = finalChoice
+        if choiceHasBeenMade == "true":
+            for doorsLeft in listOfDoorEnsembles:
+                doorsLeft.door.fill=Color("White")
+                win.canvas.shapes.Remove(doorsLeft.doorknob)
+
+"""
+         elif puerta.door.hit(event.x,event.y) and puerta.status=="Chosen":
+            puerta.status="Not Chosen"
+            puerta.door.outline=Color("black")            
+            puerta.door.setWidth(1)
+            print("UnChoosing door")
+"""
+                
+onMouseDown(handleMouseDown)
+
+            #puerta.door.outline = Color("Black")
+            #puerta.door.setWidth(1)
